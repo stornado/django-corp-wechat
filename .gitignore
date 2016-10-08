@@ -1,89 +1,72 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
 lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
 # Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
-
-# Translations
-*.mo
-*.pot
-
+*.py[cod]
+/djwechat/djwechat/sae
+# Distribution / packaging
 # Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# IPython Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# dotenv
+__pycache__/
+# Byte-compiled / optimized / DLL files
+pip-log.txt
 .env
-
-# virtualenv
-venv/
-ENV/
-
-# Spyder project settings
+.webassets-cache
+# dotenv
 .spyderproject
-
-# Rope project settings
+dist/
+*.pot
+# Installer logs
+# Scrapy stuff:
+*,cover
+lib64/
+env/
+.cache
+.eggs/
+# C extensions
+.coverage.*
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+htmlcov/
+# virtualenv
+*.egg-info/
+coverage.xml
+.tox/
+# IPython Notebook
+.Python
+#  Usually these files are written by a python script from a template
+ENV/
 .ropeproject
+target/
+celerybeat-schedule
+nosetests.xml
+# Translations
+pip-delete-this-directory.txt
+# pyenv
+*$py.class
+*.so
+*.manifest
+*.mo
+parts/
+var/
+.scrapy
+local_settings.py
+# Sphinx documentation
+.hypothesis/
+eggs/
+downloads/
+# PyBuilder
+.python-version
+# Flask stuff:
+# celery beat schedule file
+sdist/
+venv/
+# Rope project settings
+.ipynb_checkpoints
+*.egg
+# PyInstaller
+build/
+*.log
+develop-eggs/
+# Spyder project settings
+*.spec
+.installed.cfg
+.coverage
+instance/
+docs/_build/

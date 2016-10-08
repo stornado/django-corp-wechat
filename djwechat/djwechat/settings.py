@@ -123,3 +123,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'mysite', 'static')
+
+# LOCALE_PATHS
+# https://docs.djangoproject.com/en/1.10/ref/settings/#s-locale-paths
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'weixin', 'locale'),
+)
