@@ -13,10 +13,7 @@ from djwechat import settings
 # Create your models here.
 
 
-@python_2_unicode_compatible
-class WeixinMP(models.Model):
-    name = models.CharField(max_length=50, verbose_name=_('AppName'))
-    appid = models.CharField(max_length=50, verbose_name=_('AppID'))
+class BaseWeixinApp(models.Model):
     secret = models.CharField(max_length=50, verbose_name=_('Secret'))
     token = models.CharField(max_length=50, verbose_name=_('Token'))
     aes_key = models.CharField(max_length=50, verbose_name=_('AESEncodingKey'))
@@ -24,6 +21,16 @@ class WeixinMP(models.Model):
         max_length=512, verbose_name=_('AccessToken'), blank=True, null=True)
     expire_time = models.DateTimeField(
         verbose_name=_('Expire Time'), blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+@python_2_unicode_compatible
+class WeixinMP(BaseWeixinApp):
+    appid = models.CharField(
+        max_length=50, verbose_name=_('AppID'), unique=True)
+    name = models.CharField(max_length=50, verbose_name=_('AppName'))
 
     def __str__(self):
         return 'AppID:%s,Name:%s' % (self.appid, self.name)
@@ -55,9 +62,15 @@ class WeixinMP(models.Model):
         verbose_name_plural = _('WechatMPs')
 
 
-class WeixinCorp(WeixinMP):
-    agent_name = models.CharField(max_length=50, verbose_name=_('AgentName'))
+@python_2_unicode_compatible
+class WeixinCorp(BaseWeixinApp):
+    corpid = models.CharField(max_length=50, verbose_name=_('CorpID'))
+    name = models.CharField(max_length=50, verbose_name=_('CorpName'))
     agentid = models.SmallIntegerField(verbose_name=_('AgentID'))
+    agent_name = models.CharField(max_length=50, verbose_name=_('AgentName'))
+
+    def __str__(self):
+        return 'CorpID:%s,Name:%s' % (self.corpid, self.name)
 
     def save(self, *args, **kwargs):
         if self._state.adding:
@@ -68,7 +81,7 @@ class WeixinCorp(WeixinMP):
             super(WeixinCorp, self).save(*args, **kwargs)
             return None
         url = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken'
-        params = dict(corpid=self.appid, corpsecret=self.secret)
+        params = dict(corpid=self.corpid, corpsecret=self.secret)
         resp = requests.get(url=url, params=params)
         respj = resp.json()
         access_token = respj.get('access_token')
@@ -81,6 +94,7 @@ class WeixinCorp(WeixinMP):
 
     class Meta:
         db_table = 'wechat_corp_server'
+        unique_together = ("corpid", "agentid")
         verbose_name = _('WechatCorp')
         verbose_name_plural = _('WechatCorps')
 
@@ -95,9 +109,9 @@ class MPMenu(models.Model):
 
     def save(self, *args, **kwargs):
         now = timezone.now()
-        if not self.access_token or not self.expire_time:
+        if not self.app.access_token or not self.app.expire_time:
             raise ValueError("AccessToken is invalid")
-        elif self.expire_time and self.expire_time < now:
+        elif self.app.expire_time and self.app.expire_time < now:
             raise ValueError('AccessToken Expired')
 
         menu_create_url = 'https://api.weixin.qq.com/cgi-bin/menu/create'
