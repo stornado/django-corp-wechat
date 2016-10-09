@@ -12,11 +12,14 @@ Class-based views
 """
 
 from django.conf.urls import url
-from views import WechatMpServer, WechatCorpServer
+from django.views.decorators.csrf import csrf_exempt
+from views import WechatCorpServer
+from views import WechatMpServer
 
 
 urlpatterns = [
-    url(r'^mp/(?P<appid>\w+)/$', WechatMpServer.as_view(), name='mp_server'),
+    url(r'^mp/(?P<appid>\w+)/$',
+        csrf_exempt(WechatMpServer.as_view()), name='mp_server'),
     url(r'^corp/(?P<corpid>\w+)/(?P<agentid>\d+)/$',
-        WechatCorpServer.as_view(), name='corp_server'),
+        csrf_exempt(WechatCorpServer.as_view()), name='corp_server'),
 ]

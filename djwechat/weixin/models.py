@@ -28,6 +28,7 @@ class BaseWeixinApp(models.Model):
 
 @python_2_unicode_compatible
 class WeixinMP(BaseWeixinApp):
+    secret = models.CharField(max_length=50, verbose_name=_('AppSecret'))
     appid = models.CharField(
         max_length=50, verbose_name=_('AppID'), unique=True)
     name = models.CharField(max_length=50, verbose_name=_('AppName'))
@@ -54,6 +55,7 @@ class WeixinMP(BaseWeixinApp):
             raise ValueError("Get AccessToken Failed: %s" % resp.content)
         self.access_token = access_token
         self.expire_time = now + datetime.timedelta(seconds=expires_in)
+
         super(WeixinMP, self).save(*args, **kwargs)
 
     class Meta:
@@ -90,11 +92,12 @@ class WeixinCorp(BaseWeixinApp):
             raise ValueError("Get AccessToken Failed: %s" % resp.content)
         self.access_token = access_token
         self.expire_time = now + datetime.timedelta(seconds=expires_in)
+
         super(WeixinCorp, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'wechat_corp_server'
-        unique_together = ("corpid", "agentid")
+        unique_together = ("corpid", "secret", "agentid")
         verbose_name = _('WechatCorp')
         verbose_name_plural = _('WechatCorps')
 
@@ -122,10 +125,13 @@ class MPMenu(models.Model):
         del_menu_respj = del_menu_resp.json()
         if not (0 == del_menu_respj.get('errcode') and 'ok' == del_menu_respj.get('errmsg').lower()):
             raise ValueError(del_menu_resp.content)
+        # raise ValueError(self.menu)
         new_menu_resp = requests.post(url=menu_create_url,
                                       params=dict(
                                           access_token=self.app.access_token),
-                                      data=json.loads(self.menu))
+                                      data=json.dumps(json.loads(
+                                          self.menu), ensure_ascii=False).encode('UTF-8'),
+                                      headers={"Content-Type": "application/json; charset=UTF-8"})
         new_menu_respj = new_menu_resp.json()
         if not (0 == new_menu_respj.get('errcode') and 'ok' == new_menu_respj.get('errmsg').lower()):
             raise ValueError(new_menu_resp.content)
@@ -165,7 +171,9 @@ class CorpMenu(models.Model):
         new_menu_resp = requests.post(url=menu_create_url,
                                       params=dict(access_token=self.corp.access_token,
                                                   agentid=self.corp.agentid),
-                                      data=json.loads(self.menu))
+                                      data=json.dumps(json.loads(
+                                          self.menu), ensure_ascii=False).encode('UTF-8'),
+                                      headers={"Content-Type": "application/json; charset=UTF-8"})
         new_menu_respj = new_menu_resp.json()
         if not (0 == new_menu_respj.get('errcode') and 'ok' == new_menu_respj.get('errmsg').lower()):
             raise ValueError(new_menu_resp.content)

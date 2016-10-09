@@ -1,0 +1,5 @@
+Django>=1.10
+MySQL-python
+PyCrypto
+requests
+pytz
