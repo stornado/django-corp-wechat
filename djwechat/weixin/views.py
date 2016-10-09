@@ -7,6 +7,11 @@ from django.views import View
 from models import WeixinCorp
 from models import WeixinMP
 from mp.WXBizMsgCrypt import WXBizMsgCrypt as MP
+try:
+    from lxml import etree as ET
+except ImportError:
+    import xml.etree.cElementTree as ET
+from message import WechatEcho
 # Create your views here.
 
 
@@ -55,7 +60,16 @@ class WechatMpServer(View):
         elif 'raw' == sReqMsgEncodingType:
             sMsg = sReqData
 
-        sRespData = sMsg
+        xml_tree = ET.fromstring(sMsg)
+        to_username = self.xml_tree.find('ToUserName').text
+        from_username = self.xml_tree.find('FromUserName').text
+        msg_type = self.xml_tree.find('MsgType').text
+        msgid = self.xml_tree.find('MsgId').text
+        create_time = self.xml_tree.find('CreateTime').text
+        echo = WechatEcho(toUser=from_username, fromUser=to_username)
+        sRespData = echo.reply_text('TO:%s,From:%s,Type:%s,MsgID:%d,Create:%d' % (
+            to_username, from_username, msg_type, msgid, create_time))
+
         ret, sEncryptMsg = wxcpt.EncryptMsg(
             sRespData, sReqNonce, sReqTimeStamp)
         if(ret != 0):
@@ -101,7 +115,16 @@ class WechatCorpServer(View):
         if(ret != 0):
             return HttpResponse("ERR: DecryptMsg ret: %d" % ret)
 
-        sRespData = sMsg
+        xml_tree = ET.fromstring(sMsg)
+        to_username = self.xml_tree.find('ToUserName').text
+        from_username = self.xml_tree.find('FromUserName').text
+        msg_type = self.xml_tree.find('MsgType').text
+        msgid = self.xml_tree.find('MsgId').text
+        create_time = self.xml_tree.find('CreateTime').text
+        echo = WechatEcho(toUser=from_username, fromUser=to_username)
+        sRespData = echo.reply_text('TO:%s,From:%s,Type:%s,MsgID:%d,Create:%d' % (
+            to_username, from_username, msg_type, msgid, create_time))
+        
         ret, sEncryptMsg = wxcpt.EncryptMsg(
             sRespData, sReqNonce, sReqTimeStamp)
         if(ret != 0):
