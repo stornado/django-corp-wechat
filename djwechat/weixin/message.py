@@ -8,7 +8,6 @@
 import time
 
 from django.template.loader import render_to_string
-from weixin.models import WeixinMP
 
 
 class WechatEcho(object):
