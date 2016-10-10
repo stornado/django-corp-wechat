@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import datetime
@@ -14,7 +15,8 @@ from djwechat import settings
 
 
 class BaseWeixinApp(models.Model):
-    secret = models.CharField(max_length=50, verbose_name=_('Secret'))
+    name = models.CharField(max_length=50, verbose_name=_('AppName'))
+    secret = models.CharField(max_length=50, verbose_name=_('AppSecret'))
     token = models.CharField(max_length=50, verbose_name=_('Token'))
     aes_key = models.CharField(max_length=50, verbose_name=_('AESEncodingKey'))
     access_token = models.CharField(
@@ -28,10 +30,8 @@ class BaseWeixinApp(models.Model):
 
 @python_2_unicode_compatible
 class WeixinMP(BaseWeixinApp):
-    secret = models.CharField(max_length=50, verbose_name=_('AppSecret'))
     appid = models.CharField(
         max_length=50, verbose_name=_('AppID'), unique=True)
-    name = models.CharField(max_length=50, verbose_name=_('AppName'))
 
     def __str__(self):
         return 'AppID:%s,Name:%s' % (self.appid, self.name)
@@ -66,8 +66,14 @@ class WeixinMP(BaseWeixinApp):
 
 @python_2_unicode_compatible
 class WeixinCorp(BaseWeixinApp):
+    '''
+    CorpID是企业号的标识，每个企业号拥有一个唯一的CorpID；Secret是管理组凭证密钥。
+    系统管理员可通过管理端的权限管理功能创建管理组，分配管理组对应用、通讯录的访问权限。完成后，管理组即可获得唯一的secret。系统管理员可通过权限管理查看所有管理组的secret，其他管理员可通过设置中的开发者凭据查看。
+    当企业应用调用企业号接口时，企业号后台为根据此次访问的AccessToken,校验访问的合法性以及所对应的管理组的管理权限以返回相应的结果。
+    '''
     corpid = models.CharField(max_length=50, verbose_name=_('CorpID'))
     name = models.CharField(max_length=50, verbose_name=_('CorpName'))
+    secret = models.CharField(max_length=50, verbose_name=_('CorpSecret'))
     agentid = models.SmallIntegerField(verbose_name=_('AgentID'))
     agent_name = models.CharField(max_length=50, verbose_name=_('AgentName'))
 
@@ -105,7 +111,8 @@ class WeixinCorp(BaseWeixinApp):
 @python_2_unicode_compatible
 class MPMenu(models.Model):
     app = models.ForeignKey(to=WeixinMP)
-    menu = models.TextField(verbose_name=_('Menu'))
+    menu = models.TextField(verbose_name=_('Menu'),
+                            help_text=_('The current custom menu includes up to three first-level menus, each containing up to five second-level menus. A menu of up to four characters, two menus up to seven Chinese characters, more out of the part will be "..." instead. Please note that, after creating the custom menu, because the micro-client cache, you need 24-hour WeChat client will show up. Suggested that the test can try to cancel attention after the attention of the enterprise number, you can see the effect after the creation.'))
 
     def __str__(self):
         return 'Menu of AppName:%s' % self.app.name
@@ -147,10 +154,11 @@ class MPMenu(models.Model):
 @python_2_unicode_compatible
 class CorpMenu(models.Model):
     corp = models.ForeignKey(to=WeixinCorp)
-    menu = models.TextField(verbose_name=_('Menu'))
+    menu = models.TextField(verbose_name=_('Menu'),
+                            help_text=_('The current custom menu includes up to three first-level menus, each containing up to five second-level menus. A menu of up to four characters, two menus up to seven Chinese characters, more out of the part will be "..." instead. Please note that, after creating the custom menu, because the micro-client cache, you need 24-hour WeChat client will show up. Suggested that the test can try to cancel attention after the attention of the enterprise number, you can see the effect after the creation.'))
 
     def __str__(self):
-        return 'Menu of AppName:%s,AgentName' % (self.corp.name, self.corp.agent_name)
+        return 'Menu of CorpName:%s,AgentName' % (self.corp.name, self.corp.agent_name)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
